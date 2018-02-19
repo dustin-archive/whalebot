@@ -83,26 +83,54 @@
       const randomInt = max => Math.floor(Math.random() * Math.floor(max))
 
       const Answers = [
-        'It is certain',
-        'It is decidedly so',
-        'Without a doubt',
-        'Yes definitely',
-        'You may rely on it',
-        'As I see it, yes',
-        'Most likely',
-        'Outlook good',
-        'Yes',
-        'Signs point to yes',
-        'Reply hazy try again',
-        'Ask again later',
-        'Better not tell you now',
-        'Cannot predict now',
-        'Concentrate and ask again',
-        'Don\'t count on it',
-        'My reply is no',
-        'My sources say no',
-        'Outlook not so good',
-        'Very doubtful'
+        // 'It is certain',
+        // 'It is decidedly so',
+        // 'Without a doubt',
+        // 'Yes definitely',
+        // 'You may rely on it',
+        // 'As I see it, yes',
+        // 'Most likely',
+        // 'Outlook good',
+        // 'Yes',
+        // 'Signs point to yes',
+        // 'Reply hazy try again',
+        // 'Ask again later',
+        // 'Better not tell you now',
+        // 'Cannot predict now',
+        // 'Concentrate and ask again',
+        // 'Don\'t count on it',
+        // 'My reply is no',
+        // 'My sources say no',
+        // 'Outlook not so good',
+        // 'Very doubtful',
+
+        '404',
+        'congratulations, you played yourself',
+        'did you agree to the TOS?',
+        'do you hate your life?',
+        'LOL SIKE',
+        'no one likes you',
+        'no, this is patrick',
+        'nope, sorry',
+        'o boi',
+        'rip',
+        'siiigh',
+        'sorry, what?',
+        'spicy bois ain\'t got chu',
+        'the spicy bois have sealed yer fate',
+        'try again never',
+        'try me, bitch',
+        'WASTED',
+        'what\'s the point?',
+        'you\'re pathetic in aesthetic',
+        'you don\'t deserve this',
+        'you wyld lmao',
+        'you\'re dead inside',
+        'YOU\'RE GARBAGE',
+        'you\'re not good enough... i don\'t know... maybe you are, but probably not',
+        'yes... your dreams ARE dead',
+        'you WOULD ask a dumb question',
+        'NEVER ask me that again'
       ]
 
       const update = data => data
@@ -130,7 +158,7 @@
         actions.update({ isShaking: true, result })
         setTimeout(() => {
           actions.update({ isShaking: false })
-          ws.send(`${state.question}... The eight ball says... ${data.Answers[result]}`)
+          ws.send(`${state.question}... The hate ball says... ${data.Answers[result]}`)
         }, 1000)
       }
 

@@ -49,9 +49,9 @@ ws.on('connection', client => {
   client.on('message', body => exec(`say "${body}"`))
 
   twitch.on('message', (channel, userstate, message, self) => {
-    if (message.startsWith('!eightball ')) {
+    if (message.startsWith('!h8ball ')) {
       client.send(JSON.stringify({
-        question: `${userstate.username} asks: ${message.slice(10)}`
+        question: `${userstate.username} asks: ${message.slice(7)}`
       }))
     }
   })

@@ -41,12 +41,12 @@ const server = micro(async (req, res) => {
   }
 })
 
-const ws = new WebSocket.Server({ server })
+const ws = new WebSocket.Server({ server, clientTracking: true })
 
 ws.on('connection', client => {
   client.on('error', err => console.error(err))
 
-  client.on('message', body => exec(`say ${body}`))
+  client.on('message', body => exec(`say "${body}"`))
 
   twitch.on('message', (channel, userstate, message, self) => {
     if (message.startsWith('!eightball ')) {

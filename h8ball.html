@@ -2,12 +2,6 @@
 <html lang='en-US'>
   <head>
     <meta charset='utf-8'>
-    <title>h8ball</title>
-    <meta name='author' content='kellynheller and whaaaley'>
-    <meta name='description' content='An eight-ball that will destroy your hopes and dreams.'>
-    <meta name='keywords' content='eightball, kellyn, whaaaley'>
-    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
-    <meta name='apple-mobile-web-app-capable' content='yes'>
     <link rel='icon' type='image/png' href='favicon.png'>
     <style>
       * {
@@ -44,7 +38,7 @@
       .app-box {
         opacity: 0;
         margin: auto;
-        padding: 48px;
+        padding: 24px 48px;
         border-radius: 4px;
         text-align: center;
         background: radial-gradient(rgb(31, 33, 35), rgb(15, 17, 19));
@@ -76,26 +70,17 @@
         }
       }
     </style>
+  </head>
+  <body>
     <script src='https://unpkg.com/hyperapp'></script>
     <script>
+      /* globals hyperapp, WebSocket */
+
       const { h, app } = hyperapp
 
       const ws = new WebSocket('ws://localhost:3000')
 
       const randomInt = max => Math.floor(Math.random() * Math.floor(max))
-
-      const update = data => data
-
-      const shake = data => (state, actions) => {
-        const result = randomInt(data.Answers.length - 1)
-        actions.update({ isShaking: true })
-        setTimeout(() => {
-          actions.update({ isShaking: false, result })
-          const answer = data.Answers[result]
-          const message = `${state.question} ... The eight ball says: ${data.Answers}`
-          ws.send(message)
-        }, 1000)
-      }
 
       const Answers = [
         'It is certain',
@@ -120,43 +105,57 @@
         'Very doubtful'
       ]
 
-      const EightBall = ([ state, actions ]) =>
-        h('img', {
-          class: state.isShaking && 'shake',
-          src: 'favicon.png',
-          onclick () {
-            !state.isShaking && actions.shake({ Answers })
-          }
-        })
+      const update = data => data
+
+      const read = d => (state, actions) => {
+        if (!state.isShowing) {
+          const question = state.queue.unshift()
+          actions.update({ isShowing: true, queue: state.queue, question })
+          actions.shake({ Answers })
+          setTimeout(() => {
+            actions.update({ isShowing: false })
+            state.queue.length && actions.read()
+          }, 5000)
+        }
+      }
+
+      const queue = data => (state, actions) => {
+        state.queue.push(data)
+        actions.update({ queue: state.queue })
+        actions.read()
+      }
+
+      const shake = data => (state, actions) => {
+        const result = randomInt(data.Answers.length - 1)
+        actions.update({ isShaking: true, result })
+        setTimeout(() => {
+          actions.update({ isShaking: false })
+          ws.send(`${state.question}... The eight ball says... ${data.Answers[result]}`)
+        }, 1000)
+      }
 
       const Words = ([ state ]) =>
         state.isShaking
           ? h('span', { class: 'placeholder' }, 'shaking dat shit...')
-          : Answers[state.result] || h('span', { class: 'placeholder' }, 'yo playur, shake dat shit')
+          : Answers[state.result]
 
       const view = (...args) => {
-        const [ state, actions ] = args
+        const [ state ] = args
         return h('div', { class: 'app' }, [
           h('div', { class: state.isShowing ? 'app-box -show' : 'app-box' }, [
             h('h1', { class: 'words' }, state.question),
-            EightBall(args),
+            h('img', {
+              class: state.isShaking && 'shake',
+              src: 'favicon.png'
+            }),
             h('h1', { class: 'words' }, Words(args))
           ])
         ])
       }
 
-      const actions = app({}, { update, shake }, view, document.body)
+      const actions = app({ queue: [] }, { shake, update, queue, read }, view, document.body)
 
-      ws.onmessage = body => {
-        actions.shake({ Answers })
-        actions.update({ ...JSON.parse(body.data), isShowing: true })
-        setTimeout(() => {
-          actions.update({ isShowing: false })
-        }, 10000)
-      }
-
+      ws.onmessage = body => actions.queue(JSON.parse(body.data).question)
     </script>
-  </head>
-  <body>
   </body>
 </html>

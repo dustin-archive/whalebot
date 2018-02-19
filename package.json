@@ -1,0 +1,28 @@
+{
+  "name": "whalebot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "micro",
+    "dev": "micro-dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whaaaley/whalebot.git"
+  },
+  "author": "Dustin Dowell <dustindowell2@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/whaaaley/whalebot/issues"
+  },
+  "homepage": "https://github.com/whaaaley/whalebot#readme",
+  "dependencies": {
+    "micro": "^9.1.0",
+    "tmi.js": "^1.2.1",
+    "ws": "^4.0.0"
+  },
+  "devDependencies": {
+    "micro-dev": "^2.2.0"
+  }
+}

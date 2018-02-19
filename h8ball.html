@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+  <head>
+    <meta charset='utf-8'>
+    <title>h8ball</title>
+    <meta name='author' content='kellynheller and whaaaley'>
+    <meta name='description' content='An eight-ball that will destroy your hopes and dreams.'>
+    <meta name='keywords' content='eightball, kellyn, whaaaley'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
+    <meta name='apple-mobile-web-app-capable' content='yes'>
+    <link rel='icon' type='image/png' href='favicon.png'>
+    <style>
+      * {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        color: inherit;
+        font: inherit;
+        text-align: inherit;
+        text-decoration: inherit;
+      }
+      *, *::after, *::before {
+        box-sizing: inherit;
+      }
+      html, body {
+        height: 100%;
+      }
+      body {
+        color: white;
+        font: 400 1em/1 '-apple-system', BlinkMacSystemFont, sans-serif;
+        box-sizing: border-box;
+        line-height: 1.25;
+      }
+      h1 {
+        font-size: 1.25em;
+      }
+      img {
+        margin: 24px 0;
+      }
+      .app-box.-show {
+        opacity: 1;
+      }
+      .app-box {
+        opacity: 0;
+        margin: auto;
+        padding: 48px;
+        border-radius: 4px;
+        text-align: center;
+        background: radial-gradient(rgb(31, 33, 35), rgb(15, 17, 19));
+        transition: opacity 0.25s;
+      }
+      .app {
+        display: flex;
+        flex-flow: column;
+        height: 100%;
+      }
+      .italic {
+        font-style: italic;
+      }
+      .placeholder {
+        opacity: 0.5;
+      }
+      .shake {
+        animation: shake 0.25s linear infinite;
+      }
+      .whitespace {
+        white-space: pre;
+      }
+      @keyframes shake {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.25);
+        }
+      }
+    </style>
+    <script src='https://unpkg.com/hyperapp'></script>
+    <script>
+      const { h, app } = hyperapp
+
+      const ws = new WebSocket('ws://localhost:3000')
+
+      const randomInt = max => Math.floor(Math.random() * Math.floor(max))
+
+      const update = data => data
+
+      const shake = data => (state, actions) => {
+        const result = randomInt(data.Answers.length - 1)
+        actions.update({ isShaking: true })
+        setTimeout(() => {
+          actions.update({ isShaking: false, result })
+          const answer = data.Answers[result]
+          const message = `${state.question} ... The eight ball says: ${data.Answers}`
+          ws.send(message)
+        }, 1000)
+      }
+
+      const Answers = [
+        'It is certain',
+        'It is decidedly so',
+        'Without a doubt',
+        'Yes definitely',
+        'You may rely on it',
+        'As I see it, yes',
+        'Most likely',
+        'Outlook good',
+        'Yes',
+        'Signs point to yes',
+        'Reply hazy try again',
+        'Ask again later',
+        'Better not tell you now',
+        'Cannot predict now',
+        'Concentrate and ask again',
+        'Don\'t count on it',
+        'My reply is no',
+        'My sources say no',
+        'Outlook not so good',
+        'Very doubtful'
+      ]
+
+      const EightBall = ([ state, actions ]) =>
+        h('img', {
+          class: state.isShaking && 'shake',
+          src: 'favicon.png',
+          onclick () {
+            !state.isShaking && actions.shake({ Answers })
+          }
+        })
+
+      const Words = ([ state ]) =>
+        state.isShaking
+          ? h('span', { class: 'placeholder' }, 'shaking dat shit...')
+          : Answers[state.result] || h('span', { class: 'placeholder' }, 'yo playur, shake dat shit')
+
+      const view = (...args) => {
+        const [ state, actions ] = args
+        return h('div', { class: 'app' }, [
+          h('div', { class: state.isShowing ? 'app-box -show' : 'app-box' }, [
+            h('h1', { class: 'words' }, state.question),
+            EightBall(args),
+            h('h1', { class: 'words' }, Words(args))
+          ])
+        ])
+      }
+
+      const actions = app({}, { update, shake }, view, document.body)
+
+      ws.onmessage = body => {
+        actions.shake({ Answers })
+        actions.update({ ...JSON.parse(body.data), isShowing: true })
+        setTimeout(() => {
+          actions.update({ isShowing: false })
+        }, 10000)
+      }
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

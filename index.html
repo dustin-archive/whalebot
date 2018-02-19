@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <style>
+      .box {
+        height: 100vh;
+        display: flex;
+      }
+
+      .box > div {
+        margin: auto;
+        background: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='box'>
+      <div>
+        <h1 id='message'>Howdy, Welcome to Micro</h1>
+      </div>
+    </div>
+    <script>
+      const message = document.getElementById('message')
+
+      const connect = () => {
+        const ws = new WebSocket('ws://localhost:3000')
+
+        ws.onmessage = body => {
+          const { data } = body
+          message.innerHTML = data
+        }
+      }
+
+      connect()
+    </script>
+  </body>
+</html>

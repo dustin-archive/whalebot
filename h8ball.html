@@ -109,7 +109,7 @@
 
       const read = d => (state, actions) => {
         if (!state.isShowing) {
-          const question = state.queue.unshift()
+          const question = state.queue.shift()
           actions.update({ isShowing: true, queue: state.queue, question })
           actions.shake({ Answers })
           setTimeout(() => {

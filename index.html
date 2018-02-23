@@ -22,7 +22,7 @@
       const message = document.getElementById('message')
 
       const connect = () => {
-        const ws = new WebSocket('ws://localhost:3000')
+        const ws = new WebSocket('ws://localhost:3001')
 
         ws.onmessage = body => {
           const { data } = body

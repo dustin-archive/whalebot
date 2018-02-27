@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "micro",
+    "start": "env $(cat .env) node index.js",
     "dev": "micro-dev"
   },
   "repository": {

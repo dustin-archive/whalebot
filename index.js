@@ -6,6 +6,8 @@ const { createReadStream, readFile } = require('fs')
 const { exec } = require('child_process')
 const WebSocket = require('ws')
 
+const { TWITCH_TOKEN } = process.env
+
 //
 // # Twitch
 // =============================================================================
@@ -19,7 +21,7 @@ const twitch = new tmi.client({
   },
   identity: {
     username: 'whaaaley',
-    password: 'oauth:p3lw983modwqcbibbb4xm437ikvp5f'
+    password: TWITCH_TOKEN
   },
   channels: ['#whaaaley']
 })

@@ -74,125 +74,132 @@
   <body>
     <script src='https://unpkg.com/hyperapp'></script>
     <script>
-      /* globals hyperapp, WebSocket */
+/* globals hyperapp, WebSocket */
 
-      const { h, app } = hyperapp
+const { h, app } = hyperapp
 
-      const ws = new WebSocket('ws://localhost:3001')
+const ws = new WebSocket('ws://localhost:3001')
 
-      const randomInt = max => Math.floor(Math.random() * Math.floor(max))
+const randomInt = max => Math.floor(Math.random() * Math.floor(max))
 
-      const Answers = [
-        // 'It is certain',
-        // 'It is decidedly so',
-        // 'Without a doubt',
-        // 'Yes definitely',
-        // 'You may rely on it',
-        // 'As I see it, yes',
-        // 'Most likely',
-        // 'Outlook good',
-        // 'Yes',
-        // 'Signs point to yes',
-        // 'Reply hazy try again',
-        // 'Ask again later',
-        // 'Better not tell you now',
-        // 'Cannot predict now',
-        // 'Concentrate and ask again',
-        // 'Don\'t count on it',
-        // 'My reply is no',
-        // 'My sources say no',
-        // 'Outlook not so good',
-        // 'Very doubtful',
+const Answers = [
+  // 'It is certain',
+  // 'It is decidedly so',
+  // 'Without a doubt',
+  // 'Yes definitely',
+  // 'You may rely on it',
+  // 'As I see it, yes',
+  // 'Most likely',
+  // 'Outlook good',
+  // 'Yes',
+  // 'Signs point to yes',
+  // 'Reply hazy try again',
+  // 'Ask again later',
+  // 'Better not tell you now',
+  // 'Cannot predict now',
+  // 'Concentrate and ask again',
+  // 'Don\'t count on it',
+  // 'My reply is no',
+  // 'My sources say no',
+  // 'Outlook not so good',
+  // 'Very doubtful',
 
-        // 'do you hate your life?',
-        // 'no, this is patrick',
-        // 'rip',
-        // 'WASTED',
-        // 'you don\'t deserve this',
-        // 'you\'re dead inside',
+  // 'do you hate your life?',
+  // 'no, this is patrick',
+  // 'rip',
+  // 'WASTED',
+  // 'you don\'t deserve this',
+  // 'you\'re dead inside',
 
-        'congratulations, you played yourself',
-        'no one likes you',
-        'nope, sorry',
-        'o boi',
-        'siiigh',
-        'sorry, what?',
-        'try again never',
-        'try me, bitch',
-        'what\'s the point?',
+  'congratulations, you played yourself',
+  'no one likes you',
+  'nope, sorry',
+  'o boi',
+  'siiigh',
+  'sorry, what?',
+  'try again never',
+  'try me, bitch',
+  'what\'s the point?',
 
-        // Kellyn's list
-        'LOL SIKE',
-        'spicy bois ain\'t got chu',
-        'the spicy bois have sealed yer fate',
-        'you\'re pathetic in aesthetic',
-        'you wyld lmao',
-        'YOU\'RE GARBAGE',
-        'you\'re not good enough... i don\'t know... maybe you are, but probably not',
-        'yes... your dreams ARE dead',
-        'you WOULD ask a dumb question',
-        'NEVER ask me that again',
+  // Kellyn's list
+  'LOL SIKE',
+  'spicy bois ain\'t got chu',
+  'the spicy bois have sealed yer fate',
+  'you\'re pathetic in aesthetic',
+  'you wyld lmao',
+  'YOU\'RE GARBAGE',
+  'you\'re not good enough... i don\'t know... maybe you are, but probably not',
+  'yes... your dreams ARE dead',
+  'you WOULD ask a dumb question',
+  'NEVER ask me that again',
 
-        // Jonn's List
-        'I often wonder why you even decide to get out of bed in the morning',
-        'You have the potential to be so much more but choose to suck',
-        'If there was hope for you it\'s gone now',
-        'I was going to say you must be having a bad day but lets be honest you\'re having a bad life',
-        'One day you will be dead and the world will suck a little less that day',
-        'If letting people down was a skill you would actually excel at something for once'
-      ]
+  // Jonn's List
+  'I often wonder why you even decide to get out of bed in the morning',
+  'You have the potential to be so much more but choose to suck',
+  'If there was hope for you it\'s gone now',
+  'I was going to say you must be having a bad day but lets be honest you\'re having a bad life',
+  'One day you will be dead and the world will suck a little less that day',
+  'If letting people down was a skill you would actually excel at something for once'
+]
 
-      const update = data => data
+const update = data => data
 
-      const read = d => (state, actions) => {
-        if (!state.isShowing) {
-          const question = state.queue.shift()
-          actions.update({ isShowing: true, queue: state.queue, question })
-          actions.shake({ Answers })
-          setTimeout(() => {
-            actions.update({ isShowing: false })
-            state.queue.length && actions.read()
-          }, 10000)
-        }
-      }
+const read = d => (state, actions) => {
+  if (!state.isShowing) {
+    const question = state.queue.shift()
+    actions.update({ isShowing: true, queue: state.queue, question })
+    actions.shake({ Answers })
+    setTimeout(() => {
+      actions.update({ isShowing: false })
+      state.queue.length && actions.read()
+    }, 10000)
+  }
+}
 
-      const queue = data => (state, actions) => {
-        state.queue.push(data)
-        actions.update({ queue: state.queue })
-        actions.read()
-      }
+const queue = data => (state, actions) => {
+  state.queue.push(data)
+  actions.update({ queue: state.queue })
+  actions.read()
+}
 
-      const shake = data => (state, actions) => {
-        const result = randomInt(data.Answers.length - 1)
-        actions.update({ isShaking: true, result })
-        setTimeout(() => {
-          actions.update({ isShaking: false })
-          ws.send(`${state.question}... The hate ball says... ${data.Answers[result]}`)
-        }, 1000)
-      }
+const preventDoubles = ({ Answers, last }) => {
+  let result = randomInt(Answers.length - 1)
+  result === last && (result = preventDoubles({ Answers, last }))
+  return result
+}
 
-      const Words = ([ state ]) =>
-        state.isShaking
-          ? h('span', { class: 'placeholder' }, 'shaking dat shit...')
-          : Answers[state.result]
+const shake = data => (state, actions) => {
+  const result = preventDoubles({ Answers: data.Answers, last: state.result })
+  actions.update({ isShaking: true, result })
+  setTimeout(() => {
+    actions.update({ isShaking: false })
+    ws.send(`${state.question}... The hate ball says... ${data.Answers[result]}`)
+  }, 1000)
+}
 
-      const view = (...args) => {
-        const [ state ] = args
-        return h('div', { class: 'app' }, [
-          h('div', { class: state.isShowing ? 'app-box -show' : 'app-box' }, [
-            h('h1', { class: 'words' }, state.question),
-            h('img', {
-              class: state.isShaking && 'shake',
-              src: 'favicon.png'
-            }),
-            h('h1', { class: 'words' }, Words(args))
-          ])
-        ])
-      }
+const Words = ([ state ]) =>
+  state.isShaking
+    ? h('span', { class: 'placeholder' }, 'shaking dat shit...')
+    : Answers[state.result]
 
-      const actions = app({ queue: [] }, { shake, update, queue, read }, view, document.body)
+const view = (...args) => {
+  const [ state ] = args
+  return h('div', { class: 'app' }, [
+    h('div', { class: state.isShowing ? 'app-box -show' : 'app-box' }, [
+      h('h1', { class: 'words' }, state.question),
+      h('img', {
+        class: state.isShaking && 'shake',
+        src: 'favicon.png'
+      }),
+      h('h1', { class: 'words' }, Words(args))
+    ])
+  ])
+}
 
-      ws.onmessage = body => actions.queue(JSON.parse(body.data).question)
+const actions = app({ queue: [] }, { shake, update, queue, read }, view, document.body)
+
+ws.onmessage = body => actions.queue(JSON.parse(body.data).question)
+
     </script>
   </body>
 </html>

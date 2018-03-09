@@ -162,14 +162,14 @@ const queue = data => (state, actions) => {
   actions.read()
 }
 
-const preventDoubles = ({ Answers, last }) => {
-  let result = randomInt(Answers.length - 1)
-  result === last && (result = preventDoubles({ Answers, last }))
+const preventDoubles = ({ max, last }) => {
+  let result = randomInt(max)
+  result === last && (result = preventDoubles({ max, last }))
   return result
 }
 
 const shake = data => (state, actions) => {
-  const result = preventDoubles({ Answers: data.Answers, last: state.result })
+  const result = preventDoubles({ max: data.Answers.length - 1, last: state.result })
   actions.update({ isShaking: true, result })
   setTimeout(() => {
     actions.update({ isShaking: false })
